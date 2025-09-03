@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer components {
+  .sidebar {
+    @apply h-full w-full bg-[var(--bg-color)] text-center;
+  }
+
+  .sidebar-title {
+    @apply text-3xl font-bold text-[var(--text-color)];
+  }
+
+  .sidebar-item {
+    @apply p-4 rounded-lg bg-[var(--card-bg)] text-[var(--text-color)] shadow 
+           hover:shadow-md transition-shadow cursor-pointer;
+  }
+}
+
+@layer base {
+  :root {
+    --bg-color: #e5e7eb; /* gray-200 */
+    --text-color: #1f2937; /* gray-800 */
+    --card-bg: #ffffff;
+  }
+
+  .dark {
+    --bg-color: #1f2937; /* gray-800 */
+    --text-color: #e5e7eb; /* gray-200 */
+    --card-bg: #374151; /* gray-700 */
+  }
+}
