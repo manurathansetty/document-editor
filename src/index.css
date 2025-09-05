@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -15,18 +15,37 @@
     @apply p-4 rounded-lg bg-[var(--card-bg)] text-[var(--text-color)] shadow 
            hover:shadow-md transition-shadow cursor-pointer;
   }
-}
 
+  .btn {
+    @apply px-4 text-xs text-[var(--btn-color)] shadow 
+    hover:text-white hover:bg-[var(--btn-color)] active:bg-[var(--btn-color)] rounded;
+  }
+
+  .footer-text {
+    @apply text-[var(--text-color)];
+  }
+
+  .popup-base {
+    @apply bg-white p-6 rounded shadow-lg w-80 dark:bg-gray-800;
+  }
+
+  .input {
+    @apply border p-2 w-full mb-2 bg-[var(--card-bg)] text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--btn-color)] rounded;
+  }
+}
+/* px-4 text-xs text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded */
 @layer base {
   :root {
     --bg-color: #e5e7eb; /* gray-200 */
     --text-color: #1f2937; /* gray-800 */
     --card-bg: #ffffff;
+    --btn-color: #6b21a8;
   }
 
   .dark {
     --bg-color: #1f2937; /* gray-800 */
     --text-color: #e5e7eb; /* gray-200 */
     --card-bg: #374151; /* gray-700 */
+    --btn-color: #6b21a8;
   }
 }
