@@ -79,18 +79,16 @@ export default function Texteditor() {
 
     function onSave(): void {
         const username = sessionStorage.getItem("name")
-        console.log("username", username);
-
-        if (documentName === "") {
-            toast.info("Please enter a document name")
-            setShowPopup(true)
-            return
-        } else {
-            setShowPopup(false)
-        }
-
-        if (username === null) {
+        if (!username) {
             toast.error("Please sign in to save your document")
+        } else {
+            if (documentName === "") {
+                toast.info("Please enter a document name")
+                setShowPopup(true)
+                return
+            } else {
+                setShowPopup(false)
+            }
         }
     }
 
