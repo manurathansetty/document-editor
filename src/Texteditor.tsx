@@ -7,17 +7,23 @@ import Placeholder from "@tiptap/extension-placeholder"
 import { saveDocument } from "./fetch-functions/documentHandling"
 import { toast } from "react-toastify"
 
-export default function Texteditor() {
+interface TexteditorProps {
+    addNewDocumentBox: (name: string) => void
+    displayContent: string
+    currentTitle: string
+}
+
+export default function Texteditor({ addNewDocumentBox, displayContent, currentTitle }: TexteditorProps) {
     const [isDark, setIsDark] = useState(
         document.documentElement.classList.contains("dark")
     )
     const [activeHeading, setActiveHeading] = useState<number | null>(null)
     const [isBoldActive, setIsBoldActive] = useState(false)
     const [isItalicActive, setIsItalicActive] = useState(false)
-    const [documentName, setDocumentName] = useState("")
+    const [documentName, setDocumentName] = useState(currentTitle || "")
     const [showPopup, setShowPopup] = useState(false)
 
-
+    // Setup editor
     const editor = useEditor({
         extensions: [
             StarterKit,
@@ -25,40 +31,38 @@ export default function Texteditor() {
                 placeholder: "Start typing...",
             }),
         ],
-        content: "",
+        content: displayContent || "",
         autofocus: true,
-        onUpdate: () => {
-            // Update toolbar buttons based on current selection
-            if (!editor) return
+    })
 
+    // Update editor content whenever selected document changes
+    useEffect(() => {
+        if (!editor) return
+        editor.commands.setContent(displayContent || "")
+        setDocumentName(currentTitle || "")
+    }, [displayContent, currentTitle, editor])
+
+    // Dynamic toolbar updates
+    useEffect(() => {
+        if (!editor) return
+
+        const updateToolbar = () => {
             setIsBoldActive(editor.isActive("bold"))
             setIsItalicActive(editor.isActive("italic"))
 
             if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
             else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
             else setActiveHeading(null)
-            useEffect(() => {
-                if (!editor) return
+        }
 
-                const updateToolbar = () => {
-                    setIsBoldActive(editor.isActive("bold"))
-                    setIsItalicActive(editor.isActive("italic"))
+        editor.on("selectionUpdate", updateToolbar)
+        editor.on("transaction", updateToolbar)
 
-                    if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
-                    else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
-                    else setActiveHeading(null)
-                }
-
-                editor.on("selectionUpdate", updateToolbar)
-                editor.on("transaction", updateToolbar) // also catch formatting changes
-
-                return () => {
-                    editor.off("selectionUpdate", updateToolbar)
-                    editor.off("transaction", updateToolbar)
-                }
-            }, [editor])
-        },
-    })
+        return () => {
+            editor.off("selectionUpdate", updateToolbar)
+            editor.off("transaction", updateToolbar)
+        }
+    }, [editor])
 
     if (!editor) return null
 
@@ -77,31 +81,43 @@ export default function Texteditor() {
         setIsItalicActive(!isItalicActive)
     }
 
-    function onSave(): void {
+    const onSave = () => {
         const username = sessionStorage.getItem("name")
         if (!username) {
             toast.error("Please sign in to save your document")
-        } else {
-            if (documentName === "") {
-                toast.info("Please enter a document name")
-                setShowPopup(true)
-                return
-            } else {
-                setShowPopup(false)
-            }
+            return
         }
+
+        if (!documentName) {
+            toast.info("Please enter a document name")
+            setShowPopup(true)
+            return
+        }
+
+        setShowPopup(false)
+        handleSubmit()
     }
 
-    function handleSubmit() {
-        setShowPopup(false)
+    const handleSubmit = () => {
         const username = sessionStorage.getItem("name")
-        saveDocument(editor.getHTML(), username as string, documentName).then((res) => {
-            if (res.success) {
-                toast.success("Document saved successfully")
-            } else {
-                toast.error("Failed to save document")
-            }
+        if (!username) return
+
+        saveDocument(editor.getHTML(), username, documentName).then((res) => {
+            if (res.success) toast.success("Document saved successfully")
+            else toast.info(res.message)
         })
+    }
+
+    const handleNewDocument = () => {
+        if (!editor) return
+
+        editor.commands.clearContent()
+        setDocumentName("")
+        setActiveHeading(null)
+        setIsBoldActive(false)
+        setIsItalicActive(false)
+
+        addNewDocumentBox("Untitled")
     }
 
     return (
@@ -119,7 +135,6 @@ export default function Texteditor() {
 
             {/* Toolbar */}
             <div className="flex flex-row gap-2 mb-4 border rounded-lg p-2 bg-gray-100 dark:bg-gray-800">
-                {/* Bold */}
                 <button
                     onClick={toggleBold}
                     className={`p-2 rounded-lg transition ${isBoldActive
@@ -130,7 +145,6 @@ export default function Texteditor() {
                     <Bold size={18} />
                 </button>
 
-                {/* Italic */}
                 <button
                     onClick={toggleItalic}
                     className={`p-2 rounded-lg transition ${isItalicActive
@@ -141,7 +155,6 @@ export default function Texteditor() {
                     <Italic size={18} />
                 </button>
 
-                {/* Heading 1 */}
                 <button
                     onClick={() => toggleHeading(1)}
                     className={`p-2 rounded-lg transition ${activeHeading === 1
@@ -152,7 +165,6 @@ export default function Texteditor() {
                     <Heading1 size={18} />
                 </button>
 
-                {/* Heading 2 */}
                 <button
                     onClick={() => toggleHeading(2)}
                     className={`p-2 rounded-lg transition ${activeHeading === 2
@@ -172,18 +184,21 @@ export default function Texteditor() {
 
             {/* Action Buttons */}
             <div className="flex flex-row gap-3 mt-4">
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" onClick={() => onSave()}>
+                <button
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                    onClick={onSave}
+                >
                     Save Document
                 </button>
-                <button className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                <button
+                    className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                    onClick={handleNewDocument}
+                >
                     New Document
                 </button>
-                {/* <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                    AI Mode
-                </button> */}
             </div>
 
-
+            {/* Document Name Popup */}
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
                     <div className="popup-base">
@@ -194,6 +209,7 @@ export default function Texteditor() {
                             type="text"
                             placeholder="Document Name"
                             className="input"
+                            value={documentName}
                             onChange={(e) => setDocumentName(e.target.value)}
                         />
                         <button
@@ -204,8 +220,7 @@ export default function Texteditor() {
                         </button>
                     </div>
                 </div>
-            )
-            }
-        </div >
+            )}
+        </div>
     )
 }

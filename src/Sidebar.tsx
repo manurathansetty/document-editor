@@ -1,11 +1,5 @@
-const panelItems = [
-    { id: 1, title: "Dashboard" },
-    { id: 2, title: "Documents" },
-    { id: 3, title: "Settings" },
-    { id: 4, title: "Profile" },
-];
-
-export function Sidebar() {
+export function Sidebar(panelItems: any) {
+    
     return (
         <div className="sidebar">
             <div className="pt-4 mb-4 flex flex-row justify-center">
@@ -13,12 +7,13 @@ export function Sidebar() {
             </div>
 
             <div className="mt-6 space-y-3 px-4">
-                {panelItems.map((item) => (
-                    <div key={item.id} className="sidebar-item">
+                {panelItems.panelItems.map((item: any) => (
+                    <div key={item.id} className="sidebar-item" onClick={() => panelItems.selectedDocument(item)}>
                         {item.title}
                     </div>
                 ))}
             </div>
+
         </div>
     );
 }

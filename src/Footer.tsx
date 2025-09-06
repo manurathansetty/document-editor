@@ -3,7 +3,7 @@ import { loginUser, signupUser } from "./fetch-functions/user";
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-export default function Footer() {
+export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
     const [userName, setUserName] = useState("World !");
     const [showPopup, setShowPopup] = useState(false);
     const [username, setUsername] = useState("");
@@ -38,6 +38,14 @@ export default function Footer() {
                 if (result.success) {
                     saveUserToSession(result.user);
                     toast.success("Logged in successfully");
+
+                    const documents = result.documents.map((document: any) => {
+                        return {
+                            id: document.content,
+                            title: document.title
+                        }
+                    });
+                    updatePanelItems(documents);
                     setShowPopup(false);
                 } else {
                     toast.error("Failed to login");
