@@ -3,8 +3,8 @@ import { loginUser, signupUser } from "./fetch-functions/user";
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
-export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
-    const [userName, setUserName] = useState("World !");
+export default function Footer({ updatePanelItems }: { updatePanelItems: any }) {
+    const [userName, setUserName] = useState(sessionStorage.getItem("name") || "World !");
     const [showPopup, setShowPopup] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -14,6 +14,17 @@ export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
     useEffect(() => {
         setDisplayName(userName || sessionStorage.getItem("name") || "");
     }, [userName]);
+
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                if (showPopup) setShowPopup(false)
+            }
+        }
+
+        window.addEventListener("keydown", handleEsc)
+        return () => window.removeEventListener("keydown", handleEsc)
+    }, [showPopup])
 
     const handleLoginClick = () => {
         setPopupText("Sign In");
@@ -31,7 +42,7 @@ export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
         const saveUserToSession = (user: string) => {
             // Ensure we store a string in sessionStorage
             const userStr = user;
-            console.log("userStr",userStr);
+            console.log("userStr", userStr);
             setUserName(userStr);
             sessionStorage.setItem("username", userStr);
             sessionStorage.setItem("name", userStr);

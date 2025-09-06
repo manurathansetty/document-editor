@@ -3,7 +3,7 @@ export function Sidebar(panelItems: any) {
     return (
         <div className="sidebar">
             <div className="pt-4 mb-4 flex flex-row justify-center">
-                <h2 className="sidebar-title">Left Panel</h2>
+                <h2 className="sidebar-title">Your Documents</h2>
             </div>
 
             <div className="mt-6 space-y-3 px-4">

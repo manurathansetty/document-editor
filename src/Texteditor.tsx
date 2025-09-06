@@ -22,6 +22,8 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
     const [isItalicActive, setIsItalicActive] = useState(false)
     const [documentName, setDocumentName] = useState(currentTitle || "")
     const [showPopup, setShowPopup] = useState(false)
+    const [showAIPrompt, setShowAIPrompt] = useState(false)
+    const [prompt, setPrompt] = useState("")
 
     // Setup editor
     const editor = useEditor({
@@ -41,6 +43,18 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         editor.commands.setContent(displayContent || "")
         setDocumentName(currentTitle || "")
     }, [displayContent, currentTitle, editor])
+
+    useEffect(() => {
+        const handleEsc = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                if (showPopup) setShowPopup(false)
+                if (showAIPrompt) setShowAIPrompt(false)
+            }
+        }
+
+        window.addEventListener("keydown", handleEsc)
+        return () => window.removeEventListener("keydown", handleEsc)
+    }, [showPopup, showAIPrompt])
 
     // Dynamic toolbar updates
     useEffect(() => {
@@ -103,7 +117,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         if (!username) return
 
         saveDocument(editor.getHTML(), username, documentName).then((res) => {
-            if (res.success){
+            if (res.success) {
                 toast.success("Document saved successfully")
                 setDocumentName(res.document.title);
                 setShowPopup(false);
@@ -124,6 +138,11 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         addNewDocumentBox("Untitled")
     }
 
+    const handleAIAssistant = () => {
+        setShowAIPrompt(true)
+        
+    }
+
     return (
         <div className="w-full h-full p-4">
             {/* Header */}
@@ -138,46 +157,70 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
             </div>
 
             {/* Toolbar */}
-            <div className="flex flex-row gap-2 mb-4 border rounded-lg p-2 bg-gray-100 dark:bg-gray-800">
-                <button
-                    onClick={toggleBold}
-                    className={`p-2 rounded-lg transition ${isBoldActive
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
-                        }`}
-                >
-                    <Bold size={18} />
-                </button>
+            <div className="flex items-center justify-between gap-2 mb-4 border rounded-lg p-2 bg-gray-100 dark:bg-gray-800">
+                <div className="flex flex-row gap-2">
+                    <button
+                        onClick={toggleBold}
+                        className={`p-2 rounded-lg transition ${isBoldActive
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                            }`}
+                    >
+                        <Bold size={18} />
+                    </button>
 
-                <button
-                    onClick={toggleItalic}
-                    className={`p-2 rounded-lg transition ${isItalicActive
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
-                        }`}
-                >
-                    <Italic size={18} />
-                </button>
+                    <button
+                        onClick={toggleItalic}
+                        className={`p-2 rounded-lg transition ${isItalicActive
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                            }`}
+                    >
+                        <Italic size={18} />
+                    </button>
 
-                <button
-                    onClick={() => toggleHeading(1)}
-                    className={`p-2 rounded-lg transition ${activeHeading === 1
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
-                        }`}
-                >
-                    <Heading1 size={18} />
-                </button>
+                    <button
+                        onClick={() => toggleHeading(1)}
+                        className={`p-2 rounded-lg transition ${activeHeading === 1
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                            }`}
+                    >
+                        <Heading1 size={18} />
+                    </button>
 
-                <button
-                    onClick={() => toggleHeading(2)}
-                    className={`p-2 rounded-lg transition ${activeHeading === 2
-                        ? "bg-purple-600 text-white"
-                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
-                        }`}
-                >
-                    <Heading2 size={18} />
-                </button>
+                    <button
+                        onClick={() => toggleHeading(2)}
+                        className={`p-2 rounded-lg transition ${activeHeading === 2
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                            }`}
+                    >
+                        <Heading2 size={18} />
+                    </button>
+                </div>
+
+                <div className="flex flex-row gap-3">
+                    <button
+                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                        onClick={onSave}
+                    >
+                        Save Document
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                        onClick={handleNewDocument}
+                    >
+                        New Document
+                    </button>
+
+                    <button
+                        className="px-4 py-2 bg-green-400 text-white rounded-lg hover:bg-green-700 transition"
+                        onClick={handleAIAssistant}
+                    >
+                        AI Assistant
+                    </button>
+                </div>
             </div>
 
             {/* Editor */}
@@ -186,39 +229,47 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
                 className="editor border rounded-md bg-white dark:bg-black text-black dark:text-white min-h-[70vh] p-3 font-mono text-base leading-6"
             />
 
-            {/* Action Buttons */}
-            <div className="flex flex-row gap-3 mt-4">
-                <button
-                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                    onClick={onSave}
-                >
-                    Save Document
-                </button>
-                <button
-                    className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
-                    onClick={handleNewDocument}
-                >
-                    New Document
-                </button>
-            </div>
+            {/* Action Buttons moved into toolbar above */}
 
             {/* Document Name Popup */}
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
-                    <div className="popup-base align-middle">
+                    <div className="popup-base align-middle flex flex-col items-center">
                         <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
                             Enter Document Name
                         </h2>
                         <input
                             type="text"
                             placeholder="Document Name"
-                            className="input"
+                            className="input mb-4 w-full"
                             value={documentName}
                             onChange={(e) => setDocumentName(e.target.value)}
                         />
                         <button
                             className="px-3 py-1 bg-purple-600 text-white rounded"
                             onClick={handleSubmit}
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {showAIPrompt && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
+                    <div className="popup-base align-middle flex flex-col items-center">
+                        <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
+                            Give me a Prompt !
+                        </h2>
+                        <input
+                            type="text"
+                            placeholder="Prompt"
+                            className="input mb-4 w-full"
+                            onChange={(e) => setPrompt(e.target.value)}
+                        />
+                        <button
+                            className="px-3 py-1 bg-purple-600 text-white rounded"
+                            onClick={handleAIAssistant}
                         >
                             Submit
                         </button>
