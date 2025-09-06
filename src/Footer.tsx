@@ -10,6 +10,8 @@ export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
     const [popupText, setPopupText] = useState<"Sign In" | "Sign Up" | "">("");
+    const [displayName, setDisplayName] = useState("");
+    setDisplayName(userName || sessionStorage.getItem("name") || "");
 
     const handleLoginClick = () => {
         setPopupText("Sign In");
@@ -72,7 +74,7 @@ export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
                 <button className="btn" onClick={handleSignUpClick}>Sign Up</button>
             </div>
             <div>
-                <p className="footer-text">Hello {userName} !</p>
+                <p className="footer-text">Hello {displayName} !</p>
             </div>
 
             {showPopup && (

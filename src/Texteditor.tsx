@@ -103,7 +103,11 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         if (!username) return
 
         saveDocument(editor.getHTML(), username, documentName).then((res) => {
-            if (res.success) toast.success("Document saved successfully")
+            if (res.success){
+                toast.success("Document saved successfully")
+                setDocumentName(res.document.title);
+                setShowPopup(false);
+            }
             else toast.info(res.message)
         })
     }
@@ -201,7 +205,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
             {/* Document Name Popup */}
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
-                    <div className="popup-base">
+                    <div className="popup-base align-middle">
                         <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
                             Enter Document Name
                         </h2>
