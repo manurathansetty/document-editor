@@ -14,7 +14,7 @@ interface TexteditorProps {
 }
 
 export default function Texteditor({ addNewDocumentBox, displayContent, currentTitle }: TexteditorProps) {
-    const [isDark, setIsDark] = useState(
+    const [isDark] = useState(
         document.documentElement.classList.contains("dark")
     )
     const [activeHeading, setActiveHeading] = useState<number | null>(null)
