@@ -3,34 +3,60 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @layer components {
+  /* Sidebar */
   .sidebar {
-    @apply h-full w-full bg-[var(--bg-color)] text-center;
+    @apply h-full w-full text-center bg-gray-200 dark:bg-gray-800;
   }
 
   .sidebar-title {
-    @apply text-3xl font-bold text-[var(--text-color)];
+    @apply text-3xl font-bold text-gray-800 dark:text-gray-200;
   }
 
   .sidebar-item {
-    @apply p-4 rounded-lg bg-[var(--card-bg)] text-[var(--text-color)] shadow 
-           hover:shadow-md transition-shadow cursor-pointer;
+    @apply p-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 shadow 
+         hover:shadow-md transition-shadow cursor-pointer;
   }
 
+  /* Button */
   .btn {
-    @apply px-4 text-xs text-[var(--btn-color)] shadow 
-    hover:text-white hover:bg-[var(--btn-color)] active:bg-[var(--btn-color)] rounded;
+    @apply px-4 text-xs text-purple-600 shadow rounded
+         hover:text-white hover:bg-purple-600 active:bg-purple-700;
   }
 
+  /* Footer text */
   .footer-text {
-    @apply text-[var(--text-color)];
+    @apply text-gray-800 dark:text-gray-200;
   }
 
+  /* Popup */
   .popup-base {
-    @apply bg-white p-6 rounded shadow-lg w-80 dark:bg-gray-800;
+    @apply bg-white dark:bg-gray-800 p-6 rounded shadow-lg w-80;
   }
 
+  /* Input */
   .input {
-    @apply border p-2 w-full mb-2 bg-[var(--card-bg)] text-[var(--text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--btn-color)] rounded;
+    @apply border p-2 w-full mb-2 rounded bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 
+         focus:outline-none focus:ring-2 focus:ring-purple-600;
+  }
+
+  /* Editor */
+  .editor .ProseMirror {
+    @apply outline-none border-none p-2.5 min-h-[70vh] font-mono text-base leading-6 
+         bg-white text-black dark:bg-black dark:text-white;
+  }
+
+  .editor h1 {
+    @apply text-2xl font-bold my-4;
+    font-weight: 700;
+    margin: 1rem 0;
+  }
+  .editor h2 {
+    @apply text-xl font-bold my-3;
+    font-weight: 600;
+    margin: 0.75rem 0;
+  }
+  .editor p {
+    margin: 0.5rem 0;
   }
 }
 /* px-4 text-xs text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded */

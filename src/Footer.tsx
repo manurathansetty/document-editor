@@ -1,41 +1,52 @@
-import { useState, useEffect } from "react";
-import { getUser, loginUser } from "./fetch-functions/user";
+import { useState } from "react";
+import { loginUser, signupUser } from "./fetch-functions/user";
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 export default function Footer() {
-
-    const [userName, setUserName] = useState("John Doe");
+    const [userName, setUserName] = useState("World !");
     const [showPopup, setShowPopup] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [popupText, setPopupText] = useState("Default value");
+    const [email, setEmail] = useState("");
+    const [popupText, setPopupText] = useState<"Sign In" | "Sign Up" | "">("");
 
-    console.log(username, password);
     const handleLoginClick = () => {
         setPopupText("Sign In");
-        setShowPopup(true); // show popup
+        setShowPopup(true);
     };
 
     const handleSignUpClick = () => {
         setPopupText("Sign Up");
-        setShowPopup(true); // show popup
+        setShowPopup(true);
     };
 
-    const handleClosePopup = () => {
-        setShowPopup(false); // hide popup
-    };
+    const handleClosePopup = () => setShowPopup(false);
 
     const handleSubmit = () => {
-        loginUser(username, password).then((result) => {
-            setUserName(result.user.username);
-            setShowPopup(false);
-        });
+        if (popupText === "Sign In") {
+            loginUser(email, password).then((result) => {
+                if (result.success) {
+                    setUserName(result.user);
+                    toast.success("Logged in successfully");
+                    setShowPopup(false);
+                } else {
+                    toast.error("Failed to login");
+                }
+            });
+        } else if (popupText === "Sign Up") {
+            signupUser(username, email, password).then((result) => {
+                if (result.success) {
+                    setUserName(result.user);
+                    toast.success("Signed up successfully");
+                    setShowPopup(false);
+                } else {
+                    toast.error("Failed to sign up");
+                }
+                setShowPopup(false);
+            });
+        }
     };
-
-    useEffect(() => {
-        getUser("1").then((result) => {
-            setUserName(result.user.username);
-        });
-    }, []);
 
     return (
         <div className="flex flex-row items-center justify-between w-full px-2">
@@ -44,25 +55,42 @@ export default function Footer() {
                 <button className="btn" onClick={handleSignUpClick}>Sign Up</button>
             </div>
             <div>
-                <p className="footer-text">Hello {userName}</p>
+                <p className="footer-text">Hello {userName} !</p>
             </div>
 
             {showPopup && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
                     <div className="popup-base">
-                        <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">{popupText}</h2>
+                        <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
+                            {popupText}
+                        </h2>
+
+                        {/* Username only for Sign Up */}
+                        {popupText === "Sign Up" && (
+                            <input
+                                type="text"
+                                placeholder="Username"
+                                className="input"
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        )}
+
+                        {/* Email always required */}
                         <input
-                            type="text"
-                            placeholder="Username"
+                            type="email"
+                            placeholder="Email"
                             className="input"
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
+
+                        {/* Password always required */}
                         <input
                             type="password"
                             placeholder="Password"
                             className="input"
                             onChange={(e) => setPassword(e.target.value)}
                         />
+
                         <div className="flex justify-end gap-2">
                             <button
                                 onClick={handleClosePopup}
@@ -70,13 +98,17 @@ export default function Footer() {
                             >
                                 Cancel
                             </button>
-                            <button className="px-3 py-1 bg-purple-600 text-white rounded" onClick={handleSubmit}>
+                            <button
+                                className="px-3 py-1 bg-purple-600 text-white rounded"
+                                onClick={handleSubmit}
+                            >
                                 Submit
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+            <ToastContainer position="bottom-right"  autoClose={3000} />
         </div>
     );
 }

@@ -1,73 +1,150 @@
-import { useEffect, useState } from "react";
-import ToggleButton from "./ToggleButton";
+import { useEffect, useState } from "react"
+import ToggleButton from "./ToggleButton"
+import { useEditor, EditorContent } from "@tiptap/react"
+import StarterKit from "@tiptap/starter-kit"
+import { Bold, Italic, Heading1, Heading2 } from "lucide-react"
 
 export default function Texteditor() {
-
     const [isDark, setIsDark] = useState(
         document.documentElement.classList.contains("dark")
-    );
+    )
+    const [activeHeading, setActiveHeading] = useState<number | null>(null)
+    const [isBoldActive, setIsBoldActive] = useState(false)
+    const [isItalicActive, setIsItalicActive] = useState(false)
 
-    useEffect(() => {
-        const observer = new MutationObserver(() => {
-            setIsDark(document.documentElement.classList.contains("dark"));
-        });
+    
+    const editor = useEditor({
+        extensions: [StarterKit],
+        content: "<p>Start typing...</p>",
+        autofocus: true,
+        onUpdate: () => {
+            // Update toolbar buttons based on current selection
+            if (!editor) return
 
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ["class"],
-        });
+            setIsBoldActive(editor.isActive("bold"))
+            setIsItalicActive(editor.isActive("italic"))
+            
+            if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
+                else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
+            else setActiveHeading(null)
+            useEffect(() => {
+                if (!editor) return
+        
+                const updateToolbar = () => {
+                    setIsBoldActive(editor.isActive("bold"))
+                    setIsItalicActive(editor.isActive("italic"))
+        
+                    if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
+                    else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
+                    else setActiveHeading(null)
+                }
+        
+                editor.on("selectionUpdate", updateToolbar)
+                editor.on("transaction", updateToolbar) // also catch formatting changes
+        
+                return () => {
+                    editor.off("selectionUpdate", updateToolbar)
+                    editor.off("transaction", updateToolbar)
+                }
+            }, [editor])
+        },
+    })
 
-        return () => observer.disconnect();
-    }, []);
+    if (!editor) return null
 
+    const toggleHeading = (level: 1 | 2) => {
+        editor.chain().focus().toggleHeading({ level }).run()
+        setActiveHeading(activeHeading === level ? null : level)
+    }
+
+    const toggleBold = () => {
+        editor.chain().focus().toggleBold().run()
+        setIsBoldActive(!isBoldActive)
+    }
+
+    const toggleItalic = () => {
+        editor.chain().focus().toggleItalic().run()
+        setIsItalicActive(!isItalicActive)
+    }
 
     return (
         <div className="w-full h-full p-4">
             {/* Header */}
             <div className="flex items-center justify-center mb-6">
-                {/* Title centered absolutely */}
                 <h1 className="relative left-1/2 transform -translate-x-1/2 text-3xl font-extrabold text-black dark:text-gray-300">
                     My Document Editor
                 </h1>
-
-                {/* Right side: toggle + icon */}
                 <div className="ml-auto flex flex-row gap-2 text-2xl">
                     <ToggleButton />
                     {isDark ? "🌙" : "☀️"}
                 </div>
             </div>
+
             {/* Toolbar */}
-            <div className="flex flex-row gap-3 mb-4">
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    Bold
+            <div className="flex flex-row gap-2 mb-4 border rounded-lg p-2 bg-gray-100 dark:bg-gray-800">
+                {/* Bold */}
+                <button
+                    onClick={toggleBold}
+                    className={`p-2 rounded-lg transition ${isBoldActive
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        }`}
+                >
+                    <Bold size={18} />
                 </button>
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    Italic
+
+                {/* Italic */}
+                <button
+                    onClick={toggleItalic}
+                    className={`p-2 rounded-lg transition ${isItalicActive
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        }`}
+                >
+                    <Italic size={18} />
                 </button>
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    h1
+
+                {/* Heading 1 */}
+                <button
+                    onClick={() => toggleHeading(1)}
+                    className={`p-2 rounded-lg transition ${activeHeading === 1
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        }`}
+                >
+                    <Heading1 size={18} />
                 </button>
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    h2
-                </button>
-            </div>
-            <div className="flex flex-row gap-3 mb-4">
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    Save Document
-                </button>
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    New Document
-                </button>
-                <button className="px-4 py-2 border border-purple-200 text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 rounded">
-                    AI mode
+
+                {/* Heading 2 */}
+                <button
+                    onClick={() => toggleHeading(2)}
+                    className={`p-2 rounded-lg transition ${activeHeading === 2
+                            ? "bg-purple-600 text-white"
+                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        }`}
+                >
+                    <Heading2 size={18} />
                 </button>
             </div>
 
-            {/* Editor Area */}
-            <textarea
-                className="w-full h-[70vh] p-3 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-black text-black dark:text-white resize-none"
-                placeholder="Start typing..."
-            ></textarea>
+            {/* Editor */}
+            <EditorContent
+                editor={editor}
+                className="editor border rounded-md bg-white dark:bg-black text-black dark:text-white min-h-[70vh] p-3 font-mono text-base leading-6"
+            />
+
+            {/* Action Buttons */}
+            <div className="flex flex-row gap-3 mt-4">
+                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    Save Document
+                </button>
+                <button className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
+                    New Document
+                </button>
+                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                    AI Mode
+                </button>
+            </div>
         </div>
-    );
+    )
 }
