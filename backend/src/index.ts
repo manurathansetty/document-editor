@@ -4,12 +4,12 @@ import cors from 'cors'
 
 const app = express()
 app.use(express.json())
-app.use(cors(
-  {
+app.use(
+  cors({
     origin: '*',
     credentials: true
-  }
-))
+  })
+)
 const port = process.env.PORT || 3000
 app.use(express.urlencoded({ extended: true }))
 
@@ -42,7 +42,10 @@ app.post('/api/userLogin', async (req: Request, res: Response) => {
       })
     }
 
-    const documents = await pool.query('SELECT * FROM documents WHERE username = $1', [user.email])
+    const documents = await pool.query(
+      'SELECT * FROM documents WHERE username = $1',
+      [user.email]
+    )
 
     return res.json({
       success: true,
@@ -91,20 +94,20 @@ app.post('/api/createDocument', async (req: Request, res: Response) => {
       [existing.rows[0].email]
     )
 
+    let result: any;
     console.log(existingDocs.rows[0])
-    if(existingDocs.rows[0].title === title) {
-
-      const result = await pool.query(
+    if (existingDocs?.rows[0] && existingDocs?.rows[0]?.title === title) {
+      await pool.query(
         'UPDATE documents SET content = $1 WHERE title = $2',
         [content, title]
       )
-      return res.json({ success: false, message: 'Document updated' })
+      return res.json({ success: true, message: 'Document updated' })
+    } else {
+      result = await pool.query(
+        'INSERT INTO documents (username, title, content) VALUES ($1, $2, $3) RETURNING *',
+        [existing.rows[0].email, title, content]
+      )
     }
-
-    const result = await pool.query(
-      'INSERT INTO documents (username, title, content) VALUES ($1, $2, $3) RETURNING *',
-      [existing.rows[0].email, title, content]
-    )
     return res.json({ success: true, document: result.rows[0] })
   } catch (err) {
     console.error(err)
