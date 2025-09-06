@@ -9,7 +9,7 @@ const port = process.env.PORT || 3000
 app.use(express.urlencoded({ extended: true }))
 
 // Test DB connection
-app.get('/users', async (req: Request, res: Response) => {
+app.get('/api/users', async (req: Request, res: Response) => {
   try {
     console.log('Connected to DB')
     const result = await pool.query('SELECT * FROM users')
@@ -20,7 +20,7 @@ app.get('/users', async (req: Request, res: Response) => {
   }
 })
 
-app.post('/userLogin', async (req: Request, res: Response) => {
+app.post('/api/userLogin', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body
     const emailclean = email.toLowerCase()
@@ -50,7 +50,7 @@ app.post('/userLogin', async (req: Request, res: Response) => {
   }
 })
 
-app.post('/userSignup', async (req: Request, res: Response) => {
+app.post('/api/userSignup', async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body
     const emailclean = email.toLowerCase()
@@ -72,7 +72,7 @@ app.post('/userSignup', async (req: Request, res: Response) => {
   }
 })
 
-app.post('/createDocument', async (req: Request, res: Response) => {
+app.post('/api/createDocument', async (req: Request, res: Response) => {
   try {
     const { username, title, content } = req.body
 
