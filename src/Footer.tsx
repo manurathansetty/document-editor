@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { loginUser, signupUser } from "./fetch-functions/user";
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -11,7 +11,9 @@ export default function Footer({updatePanelItems}: {updatePanelItems: any}) {
     const [email, setEmail] = useState("");
     const [popupText, setPopupText] = useState<"Sign In" | "Sign Up" | "">("");
     const [displayName, setDisplayName] = useState("");
-    setDisplayName(userName || sessionStorage.getItem("name") || "");
+    useEffect(() => {
+        setDisplayName(userName || sessionStorage.getItem("name") || "");
+    }, [userName]);
 
     const handleLoginClick = () => {
         setPopupText("Sign In");
