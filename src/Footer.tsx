@@ -24,10 +24,19 @@ export default function Footer() {
     const handleClosePopup = () => setShowPopup(false);
 
     const handleSubmit = () => {
+        const saveUserToSession = (user: string) => {
+            // Ensure we store a string in sessionStorage
+            const userStr = user;
+            console.log("userStr",userStr);
+            setUserName(userStr);
+            sessionStorage.setItem("username", userStr);
+            sessionStorage.setItem("name", userStr);
+        };
+
         if (popupText === "Sign In") {
             loginUser(email, password).then((result) => {
                 if (result.success) {
-                    setUserName(result.user);
+                    saveUserToSession(result.user);
                     toast.success("Logged in successfully");
                     setShowPopup(false);
                 } else {
@@ -37,16 +46,16 @@ export default function Footer() {
         } else if (popupText === "Sign Up") {
             signupUser(username, email, password).then((result) => {
                 if (result.success) {
-                    setUserName(result.user);
+                    saveUserToSession(result.user);
                     toast.success("Signed up successfully");
                     setShowPopup(false);
                 } else {
                     toast.error("Failed to sign up");
                 }
-                setShowPopup(false);
             });
         }
     };
+
 
     return (
         <div className="flex flex-row items-center justify-between w-full px-2">
@@ -108,7 +117,7 @@ export default function Footer() {
                     </div>
                 </div>
             )}
-            <ToastContainer position="bottom-right"  autoClose={3000} />
+            <ToastContainer position="bottom-right" autoClose={3000} />
         </div>
     );
 }

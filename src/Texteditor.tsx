@@ -3,6 +3,9 @@ import ToggleButton from "./ToggleButton"
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Bold, Italic, Heading1, Heading2 } from "lucide-react"
+import Placeholder from "@tiptap/extension-placeholder"
+import { saveDocument } from "./fetch-functions/documentHandling"
+import { toast } from "react-toastify"
 
 export default function Texteditor() {
     const [isDark, setIsDark] = useState(
@@ -11,11 +14,18 @@ export default function Texteditor() {
     const [activeHeading, setActiveHeading] = useState<number | null>(null)
     const [isBoldActive, setIsBoldActive] = useState(false)
     const [isItalicActive, setIsItalicActive] = useState(false)
+    const [documentName, setDocumentName] = useState("")
+    const [showPopup, setShowPopup] = useState(false)
 
-    
+
     const editor = useEditor({
-        extensions: [StarterKit],
-        content: "<p>Start typing...</p>",
+        extensions: [
+            StarterKit,
+            Placeholder.configure({
+                placeholder: "Start typing...",
+            }),
+        ],
+        content: "",
         autofocus: true,
         onUpdate: () => {
             // Update toolbar buttons based on current selection
@@ -23,25 +33,25 @@ export default function Texteditor() {
 
             setIsBoldActive(editor.isActive("bold"))
             setIsItalicActive(editor.isActive("italic"))
-            
+
             if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
-                else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
+            else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
             else setActiveHeading(null)
             useEffect(() => {
                 if (!editor) return
-        
+
                 const updateToolbar = () => {
                     setIsBoldActive(editor.isActive("bold"))
                     setIsItalicActive(editor.isActive("italic"))
-        
+
                     if (editor.isActive("heading", { level: 1 })) setActiveHeading(1)
                     else if (editor.isActive("heading", { level: 2 })) setActiveHeading(2)
                     else setActiveHeading(null)
                 }
-        
+
                 editor.on("selectionUpdate", updateToolbar)
                 editor.on("transaction", updateToolbar) // also catch formatting changes
-        
+
                 return () => {
                     editor.off("selectionUpdate", updateToolbar)
                     editor.off("transaction", updateToolbar)
@@ -67,6 +77,35 @@ export default function Texteditor() {
         setIsItalicActive(!isItalicActive)
     }
 
+    function onSave(): void {
+        const username = sessionStorage.getItem("name")
+        console.log("username", username);
+
+        if (documentName === "") {
+            toast.info("Please enter a document name")
+            setShowPopup(true)
+            return
+        } else {
+            setShowPopup(false)
+        }
+
+        if (username === null) {
+            toast.error("Please sign in to save your document")
+        }
+    }
+
+    function handleSubmit() {
+        setShowPopup(false)
+        const username = sessionStorage.getItem("name")
+        saveDocument(editor.getHTML(), username as string, documentName).then((res) => {
+            if (res.success) {
+                toast.success("Document saved successfully")
+            } else {
+                toast.error("Failed to save document")
+            }
+        })
+    }
+
     return (
         <div className="w-full h-full p-4">
             {/* Header */}
@@ -86,8 +125,8 @@ export default function Texteditor() {
                 <button
                     onClick={toggleBold}
                     className={`p-2 rounded-lg transition ${isBoldActive
-                            ? "bg-purple-600 text-white"
-                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        ? "bg-purple-600 text-white"
+                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
                         }`}
                 >
                     <Bold size={18} />
@@ -97,8 +136,8 @@ export default function Texteditor() {
                 <button
                     onClick={toggleItalic}
                     className={`p-2 rounded-lg transition ${isItalicActive
-                            ? "bg-purple-600 text-white"
-                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        ? "bg-purple-600 text-white"
+                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
                         }`}
                 >
                     <Italic size={18} />
@@ -108,8 +147,8 @@ export default function Texteditor() {
                 <button
                     onClick={() => toggleHeading(1)}
                     className={`p-2 rounded-lg transition ${activeHeading === 1
-                            ? "bg-purple-600 text-white"
-                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        ? "bg-purple-600 text-white"
+                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
                         }`}
                 >
                     <Heading1 size={18} />
@@ -119,8 +158,8 @@ export default function Texteditor() {
                 <button
                     onClick={() => toggleHeading(2)}
                     className={`p-2 rounded-lg transition ${activeHeading === 2
-                            ? "bg-purple-600 text-white"
-                            : "hover:bg-purple-200 dark:hover:bg-purple-700"
+                        ? "bg-purple-600 text-white"
+                        : "hover:bg-purple-200 dark:hover:bg-purple-700"
                         }`}
                 >
                     <Heading2 size={18} />
@@ -135,16 +174,40 @@ export default function Texteditor() {
 
             {/* Action Buttons */}
             <div className="flex flex-row gap-3 mt-4">
-                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition" onClick={() => onSave()}>
                     Save Document
                 </button>
                 <button className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
                     New Document
                 </button>
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+                {/* <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                     AI Mode
-                </button>
+                </button> */}
             </div>
-        </div>
+
+
+            {showPopup && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
+                    <div className="popup-base">
+                        <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
+                            Enter Document Name
+                        </h2>
+                        <input
+                            type="text"
+                            placeholder="Document Name"
+                            className="input"
+                            onChange={(e) => setDocumentName(e.target.value)}
+                        />
+                        <button
+                            className="px-3 py-1 bg-purple-600 text-white rounded"
+                            onClick={handleSubmit}
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            )
+            }
+        </div >
     )
 }
