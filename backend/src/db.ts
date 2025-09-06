@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const pool = new Pool({
-  user: 'postgres',
-  password: 'manu',
+  user: 'manu',
+  password: 'pass',
   host: 'localhost',
   port: Number(5432),
   database: 'mydb',
