@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { loginUser, signupUser } from "./fetch-functions/user";
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { getDocuments } from "./fetch-functions/documentHandling";
 
 export default function Footer({ updatePanelItems }: { updatePanelItems: any }) {
     const [userName, setUserName] = useState(sessionStorage.getItem("name") || "World !");
@@ -14,6 +15,24 @@ export default function Footer({ updatePanelItems }: { updatePanelItems: any }) 
     useEffect(() => {
         setDisplayName(userName || sessionStorage.getItem("name") || "");
     }, [userName]);
+
+    useEffect(() => {
+        if(sessionStorage.getItem("email")) {
+            getDocuments(sessionStorage.getItem("email") || "").then((result) => {
+                if(result.success) {
+
+                    const documents = result.documents.map((document: any) => {
+                        return {
+                            id: document.content,
+                            title: document.title
+                        }
+                    });
+
+                    updatePanelItems(documents);
+                }
+            });
+        }
+    }, []);
 
     useEffect(() => {
         const handleEsc = (event: KeyboardEvent) => {
@@ -51,6 +70,9 @@ export default function Footer({ updatePanelItems }: { updatePanelItems: any }) 
         if (popupText === "Sign In") {
             loginUser(email, password).then((result) => {
                 if (result.success) {
+                    sessionStorage.setItem("username", result.user);
+                    sessionStorage.setItem("name", result.user);
+                    sessionStorage.setItem("email", email);
                     saveUserToSession(result.user);
                     toast.success("Logged in successfully");
 

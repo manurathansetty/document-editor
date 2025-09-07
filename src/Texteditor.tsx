@@ -140,7 +140,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
 
     // const handleAIAssistant = () => {
     //     setShowAIPrompt(true)
-        
+
     // }
 
     return (
@@ -202,17 +202,19 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
 
                 <div className="flex flex-row gap-3">
                     <button
-                        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                        className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
                         onClick={onSave}
                     >
                         Save Document
                     </button>
+
                     <button
-                        className="px-4 py-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                        className="px-2 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm bg-gray-300 text-black rounded-lg hover:bg-gray-400 transition dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                         onClick={handleNewDocument}
                     >
                         New Document
                     </button>
+
 
                     {/* <button
                         className="px-4 py-2 bg-green-400 text-white rounded-lg hover:bg-green-700 transition"

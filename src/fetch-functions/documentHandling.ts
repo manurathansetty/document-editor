@@ -16,3 +16,15 @@ export const saveDocument = async (
   const data = await response.json()
   return data
 }
+
+export const getDocuments = async (email: string) => {
+  const response = await fetch(`${BACKEND_URL}/getDocuments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email })
+  })
+  const data = await response.json()
+  return data
+}
