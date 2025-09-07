@@ -120,24 +120,33 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         const username = sessionStorage.getItem("name")
         if (!username) return
 
-        saveDocument(editor.getHTML(), username, documentName).then((res) => {
+        const html = editor.getHTML()
+        saveDocument(html, username, documentName).then((res) => {
             if (res.success) {
                 const isUpdate = res.message === "Document updated"
                 toast.success(isUpdate ? "Document updated" : "Document saved successfully")
 
+                const savedTitle = res.document?.title || documentName
+
                 // If Untitled exists in sidebar, rename that entry instead of adding a new one
-                if (!isUpdate && res.document?.title) {
+                if (!isUpdate && savedTitle) {
                     const idx = [...panelItems].reverse().findIndex((d) => d.title === 'Untitled')
                     if (idx !== -1) {
                         const actualIndex = panelItems.length - 1 - idx
-                        const renamed = panelItems.map((d, i) => i === actualIndex ? { ...d, title: res.document.title, id: editor.getHTML() } : d)
+                        const renamed = panelItems.map((d, i) => i === actualIndex ? { ...d, title: savedTitle, id: html } : d)
                         updatePanelItems(renamed)
                     } else {
-                        addNewDocumentBox(res.document.title)
+                        addNewDocumentBox(savedTitle)
                     }
                 }
 
-                setDocumentName(res.document?.title || documentName)
+                // On update, refresh the item's content so switching shows latest
+                if (isUpdate && savedTitle) {
+                    const updated = panelItems.map((d) => d.title === savedTitle ? { ...d, id: html } : d)
+                    updatePanelItems(updated)
+                }
+
+                setDocumentName(savedTitle)
                 setShowPopup(false)
             } else {
                 toast.info(res.message || "Failed to save document")
@@ -332,3 +341,4 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         </div>
     )
 }
+
