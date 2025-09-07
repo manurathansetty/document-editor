@@ -54,6 +54,8 @@ export default function App() {
             addNewDocumentBox={addNewDocumentBox}
             displayContent={displayContent}
             currentTitle={title}
+            panelItems={panelItems}
+            updatePanelItems={updatePanelItems}
           />
         </div>
       </div>

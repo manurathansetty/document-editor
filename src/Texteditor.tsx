@@ -4,6 +4,7 @@ import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Bold, Italic, Heading1, Heading2 } from "lucide-react"
 import Placeholder from "@tiptap/extension-placeholder"
+import { Callout } from "./extensions/Callout"
 import { saveDocument } from "./fetch-functions/documentHandling"
 import { toast } from "react-toastify"
 
@@ -11,9 +12,11 @@ interface TexteditorProps {
     addNewDocumentBox: (name: string) => void
     displayContent: string
     currentTitle: string
+    panelItems: Array<{ id: any; title: string }>
+    updatePanelItems: (items: any) => void
 }
 
-export default function Texteditor({ addNewDocumentBox, displayContent, currentTitle }: TexteditorProps) {
+export default function Texteditor({ addNewDocumentBox, displayContent, currentTitle, panelItems, updatePanelItems }: TexteditorProps) {
     const [isDark] = useState(
         document.documentElement.classList.contains("dark")
     )
@@ -32,6 +35,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
             Placeholder.configure({
                 placeholder: "Start typing...",
             }),
+            Callout,
         ],
         content: displayContent || "",
         autofocus: true,
@@ -118,11 +122,26 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
 
         saveDocument(editor.getHTML(), username, documentName).then((res) => {
             if (res.success) {
-                toast.success("Document saved successfully")
-                setDocumentName(res.document.title);
-                setShowPopup(false);
+                const isUpdate = res.message === "Document updated"
+                toast.success(isUpdate ? "Document updated" : "Document saved successfully")
+
+                // If Untitled exists in sidebar, rename that entry instead of adding a new one
+                if (!isUpdate && res.document?.title) {
+                    const idx = [...panelItems].reverse().findIndex((d) => d.title === 'Untitled')
+                    if (idx !== -1) {
+                        const actualIndex = panelItems.length - 1 - idx
+                        const renamed = panelItems.map((d, i) => i === actualIndex ? { ...d, title: res.document.title, id: editor.getHTML() } : d)
+                        updatePanelItems(renamed)
+                    } else {
+                        addNewDocumentBox(res.document.title)
+                    }
+                }
+
+                setDocumentName(res.document?.title || documentName)
+                setShowPopup(false)
+            } else {
+                toast.info(res.message || "Failed to save document")
             }
-            else toast.info(res.message)
         })
     }
 
@@ -223,6 +242,38 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
                         AI Assistant
                     </button> */}
                 </div>
+            </div>
+
+            <div className="flex flex-row gap-2 mb-4">
+                <button
+                    onClick={() => editor
+                        .chain()
+                        .focus()
+                        .insertContent({
+                            type: "callout",
+                            attrs: { type: "info" },
+                            content: [{ type: "paragraph" }],
+                        })
+                        .run()}
+                    className="px-2 py-1 text-xs rounded bg-blue-500 text-white hover:bg-blue-600"
+                >
+                    ℹ️ Info Callout
+                </button>
+
+                <button
+                    onClick={() => editor
+                        .chain()
+                        .focus()
+                        .insertContent({
+                            type: "callout",
+                            attrs: { type: "warning" },
+                            content: [{ type: "paragraph" }],
+                        })
+                        .run()}
+                    className="px-2 py-1 text-xs rounded bg-orange-500 text-black hover:bg-orange-600"
+                >
+                    ⚠️ Warning Callout
+                </button>
             </div>
 
             {/* Editor */}
