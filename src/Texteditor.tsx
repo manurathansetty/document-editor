@@ -23,7 +23,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
     const [documentName, setDocumentName] = useState(currentTitle || "")
     const [showPopup, setShowPopup] = useState(false)
     const [showAIPrompt, setShowAIPrompt] = useState(false)
-    const [prompt, setPrompt] = useState("")
+    // const [prompt, setPrompt] = useState("")
 
     // Setup editor
     const editor = useEditor({
@@ -138,10 +138,10 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
         addNewDocumentBox("Untitled")
     }
 
-    const handleAIAssistant = () => {
-        setShowAIPrompt(true)
+    // const handleAIAssistant = () => {
+    //     setShowAIPrompt(true)
         
-    }
+    // }
 
     return (
         <div className="w-full h-full p-4">
@@ -214,12 +214,12 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
                         New Document
                     </button>
 
-                    <button
+                    {/* <button
                         className="px-4 py-2 bg-green-400 text-white rounded-lg hover:bg-green-700 transition"
                         onClick={handleAIAssistant}
                     >
                         AI Assistant
-                    </button>
+                    </button> */}
                 </div>
             </div>
 
@@ -255,7 +255,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
                 </div>
             )}
 
-            {showAIPrompt && (
+            {/* {showAIPrompt && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 dark:bg-black/50">
                     <div className="popup-base align-middle flex flex-col items-center">
                         <h2 className="text-lg font-bold mb-4 text-center text-black dark:text-white">
@@ -275,7 +275,7 @@ export default function Texteditor({ addNewDocumentBox, displayContent, currentT
                         </button>
                     </div>
                 </div>
-            )}
+            )} */}
         </div>
     )
 }
