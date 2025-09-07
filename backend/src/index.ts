@@ -85,31 +85,32 @@ app.post('/api/createDocument', async (req: Request, res: Response) => {
   try {
     const { username, title, content } = req.body
 
-    const existing = await pool.query(
-      'SELECT * FROM users WHERE username = $1',
-      [username]
-    )
-
-    const existingDocs = await pool.query(
-      'SELECT * FROM documents WHERE username = $1',
-      [existing.rows[0].email]
-    )
-
-    let result: any
-    console.log(existingDocs.rows[0])
-    if (existingDocs?.rows[0] && existingDocs?.rows[0]?.title === title) {
-      await pool.query('UPDATE documents SET content = $1 WHERE title = $2', [
-        content,
-        title
-      ])
-      return res.json({ success: true, message: 'Document updated' })
-    } else {
-      result = await pool.query(
-        'INSERT INTO documents (username, title, content) VALUES ($1, $2, $3) RETURNING *',
-        [existing.rows[0].email, title, content]
-      )
+    // Resolve provided username to the stored email used in documents table
+    const userResult = await pool.query('SELECT email FROM users WHERE username = $1', [username])
+    const userEmail = userResult.rows?.[0]?.email
+    if (!userEmail) {
+      return res.json({ success: false, message: 'User not found' })
     }
-    return res.json({ success: true, document: result.rows[0] })
+
+    // Check if a document already exists for this user with the same title
+    const docCheck = await pool.query(
+      'SELECT 1 FROM documents WHERE username = $1 AND title = $2 LIMIT 1',
+      [userEmail, title]
+    )
+
+    if (docCheck.rows.length > 0) {
+      await pool.query(
+        'UPDATE documents SET content = $1 WHERE username = $2 AND title = $3',
+        [content, userEmail, title]
+      )
+      return res.json({ success: true, message: 'Document updated', document: { title, content } })
+    }
+
+    const insertResult = await pool.query(
+      'INSERT INTO documents (username, title, content) VALUES ($1, $2, $3) RETURNING *',
+      [userEmail, title, content]
+    )
+    return res.json({ success: true, message: 'Document saved successfully', document: insertResult.rows[0] })
   } catch (err) {
     console.error(err)
     return res.json({ success: false, error: err })
