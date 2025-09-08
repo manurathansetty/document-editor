@@ -1,69 +1,75 @@
-# React + TypeScript + Vite
+**📄 Document Editor Web Application**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack document editor application built with React + TypeScript + Vite on the frontend and Node.js + PostgreSQL on the backend.
+This app provides a secure, responsive, and feature-rich environment for managing and editing documents with ease.
 
-Currently, two official plugins are available:
+**🚀 Features**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🔐 Login-based document handling – Secure user authentication and access control.
 
-## Expanding the ESLint configuration
+📝 Text editing – Powered by TipTap
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+⚡ Info & warning callbacks – Get instant feedback and alerts while working with documents.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+📱 Mobile responsive – Optimized UI/UX across devices for a smooth editing experience.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+**🛠️ Tech Stack**
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Frontend**
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+React (with Vite for fast builds)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+TypeScript
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Tailwind CSS
+
+TipTap editor
+
+**Backend**
+
+Node.js / Express.js
+PostgreSQL
+
+**⚙️ Setup & Installation**
+
+**1️⃣ Clone the repository**
+git clone https://github.com/your-username/document-editor.git
+cd document-editor
+
+**2️⃣ Backend Setup**
+cd backend
+npm install
+
+
+**Configure your PostgreSQL connection in backend/db.ts:**
+
+This runs on local postgres hence you can add your local postgres user name and password for logging in
+
+
+**Run the backend:**
+
+npm run dev
+runs on port 3000
+
+**3️⃣ Frontend Setup**
+cd frontend
+npm install
+npm run dev
+
+
+**App will start at:**
+👉 http://localhost:4200
+
+**📂 Project Structure**
+
+document-editor/
+│── backend/       # Node.js + Express backend
+│── frontend/      # React + Vite frontend
+│── database/      # PostgreSQL schema & migration scripts
+│── README.md      # Project documentation
+
+**🔑 Authentication Flow**
+
+Users log in using their credentials.
+Only authenticated users can create & save documents.
+Whilst without logging in you can explore the document editing options but cannot save.
