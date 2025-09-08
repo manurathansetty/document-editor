@@ -49,7 +49,7 @@ This runs on local postgres hence you can add your local postgres user name and 
 **Run the backend:**
 
 npm run dev
-runs on port 3000
+runs on **http://localhost:3000**
 
 **3️⃣ Frontend Setup**
 cd frontend
